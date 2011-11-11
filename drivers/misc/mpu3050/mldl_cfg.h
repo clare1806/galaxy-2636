@@ -1,7 +1,20 @@
 /*
- * $License:
- *    Copyright (C) 2010 InvenSense Corporation, All Rights Reserved.
- * $
+ $License:
+    Copyright (C) 2010 InvenSense Corporation, All Rights Reserved.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  $
  */
 
 /**
@@ -26,9 +39,9 @@
 /* -    Defines.       - */
 /* --------------------- */
 
-/*************************************************************************/
-/*  Sensors                                                              */
-/*************************************************************************/
+    /*************************************************************************/
+    /*  Sensors                                                              */
+    /*************************************************************************/
 
 #define ML_X_GYRO			(0x0001)
 #define ML_Y_GYRO			(0x0002)
@@ -76,6 +89,13 @@
 /* -    Variables.     - */
 /* --------------------- */
 
+/*exteded variables for only kernel*/
+struct mldl_ext_cfg {
+	
+	void* mpuacc_data; /*Mpu-Accel Data*/
+};
+
+
 /* Platform data for the MPU */
 struct mldl_cfg {
 	/* MPU related configuration */
@@ -117,6 +137,11 @@ struct mldl_cfg {
 
 	/* Platform Data */
 	struct mpu3050_platform_data *pdata;
+
+	/*---------------------------------------------------*/
+	/*KERNEL ONLY VARIABLES                              */
+	/*---------------------------------------------------*/
+	struct mldl_ext_cfg ext;
 };
 
 
@@ -166,6 +191,19 @@ int mpu3050_config_compass(struct mldl_cfg *mldl_cfg,
 int mpu3050_config_pressure(struct mldl_cfg *mldl_cfg,
 			    void *pressure_handle,
 			    struct ext_slave_config *data);
+
+int mpu3050_get_config_accel(struct mldl_cfg *mldl_cfg,
+			     void *accel_handle,
+			     struct ext_slave_config *data);
+int mpu3050_get_config_compass(struct mldl_cfg *mldl_cfg,
+			       void *compass_handle,
+			       struct ext_slave_config *data);
+int mpu3050_get_config_pressure(struct mldl_cfg *mldl_cfg,
+				void *pressure_handle,
+				struct ext_slave_config *data);
+
+int get_MPUReg(struct mldl_cfg *mldl_cfg, void *gyro_handle);
+int set_MPUReg(struct mldl_cfg *mldl_cfg, void *gyro_handle);
 
 
 #endif				/* __MLDL_CFG_H__ */

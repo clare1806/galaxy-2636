@@ -17,7 +17,7 @@ Author: InvenSense <http://invensense.com>
 Description
 -----------
 The mpu is a motion processor unit that controls the mpu3050 gyroscope, a slave
-accelerometer, a compass and a pressure sensor, or the mpu6000 and slave
+accelerometer, a compass and a pressure sensor, or the mpu6000 and slave 
 compass.  This document describes how to install the driver into a Linux kernel
 and a small note about how to set up the file permissions in an android file
 system.
@@ -33,7 +33,7 @@ Sysfs entries
 General Remarks MPU3050
 -----------------------
 * Valid addresses for the MPU3050 is 0x68.
-* Accelerometer must be on the secondary I2C bus for MPU3050, the
+* Accelerometer must be on the secondary I2C bus for MPU3050, the 
   magnetometer must be on the primary bus and pressure sensor must
   be on the primary bus.
 
@@ -54,7 +54,7 @@ space.
 Adding to a Kernel
 ==================
 
-The mpu driver is designed to be inserted in the drivers/misc part of the
+The mpu driver is designed to be inserted in the drivers/misc part of the 
 kernel.  Extracting the tarball from the root kernel dir will place the
 contents of the tarball here:
 
@@ -114,8 +114,8 @@ should be modified for your platform.
 
 static struct mpu3050_platform_data mpu_data = {
 	.int_config  = 0x10,
-	.orientation = {  -1,  0,  0,
-			   0,  1,  0,
+	.orientation = {  -1,  0,  0, 
+			   0,  1,  0, 
 			   0,  0, -1 },
 	/* accel */
 	.accel = {
@@ -127,8 +127,8 @@ static struct mpu3050_platform_data mpu_data = {
 		 .adapt_num   = 2,
 		 .bus         = EXT_SLAVE_BUS_SECONDARY,
 		 .address     = 0x0F,
-		 .orientation = {  -1,  0,  0,
-				    0,  1,  0,
+		 .orientation = {  -1,  0,  0, 
+				    0,  1,  0, 
 				    0,  0, -1 },
 	 },
 	/* compass */
@@ -141,8 +141,8 @@ static struct mpu3050_platform_data mpu_data = {
 		 .adapt_num   = 2,
 		 .bus         = EXT_SLAVE_BUS_PRIMARY,
 		 .address     = 0x0E,
-		 .orientation = { 1, 0, 0,
-				  0, 1, 0,
+		 .orientation = { 1, 0, 0, 
+				  0, 1, 0, 
 				  0, 0, 1 },
 	 },
 	/* pressure */
@@ -155,8 +155,8 @@ static struct mpu3050_platform_data mpu_data = {
 		 .adapt_num   = 2,
 		 .bus         = EXT_SLAVE_BUS_PRIMARY,
 		 .address     = 0x77,
-		 .orientation = { 1, 0, 0,
-				  0, 1, 0,
+		 .orientation = { 1, 0, 0, 
+				  0, 1, 0, 
 				  0, 0, 1 },
 	 },
 };
@@ -209,8 +209,8 @@ static struct mpu3050_platform_data mpu_data = {
 		 .adapt_num   = 2,
 		 .bus         = EXT_SLAVE_BUS_PRIMARY,
 		 .address     = 0x77,
-		 .orientation = { 1, 0, 0,
-				  0, 1, 0,
+		 .orientation = { 1, 0, 0, 
+				  0, 1, 0, 
 				  0, 0, 1 },
 	 },
 
@@ -238,8 +238,8 @@ done as well:
 Android File Permissions
 ========================
 
-To set up the file permissions on an android system, the /dev/mpu and
-/dev/mpuirq files needs to be added to the system/core/init/devices.c file
+To set up the file permissions on an android system, the /dev/mpu and 
+/dev/mpuirq files needs to be added to the system/core/init/devices.c file 
 inside the perms_ structure.
 
 static struct perms_ devperms[] = {

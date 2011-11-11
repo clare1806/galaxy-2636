@@ -99,4 +99,3 @@ MODULE_DESCRIPTION("Universal sensors core class");
 MODULE_AUTHOR("Ryunkyun Park <ryun.park@samsung.com>");
 MODULE_LICENSE("GPL");
 
-

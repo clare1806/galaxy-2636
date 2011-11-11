@@ -1,7 +1,20 @@
 /*
- * $License:
- *    Copyright (C) 2010 InvenSense Corporation, All Rights Reserved.
- * $
+ $License:
+    Copyright (C) 2010 InvenSense Corporation, All Rights Reserved.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  $
  */
 #include <linux/interrupt.h>
 #include <linux/module.h>
@@ -29,6 +42,7 @@
 #include "mpuirq.h"
 #include "mldl_cfg.h"
 #include "mpu-i2c.h"
+#include "mpu-accel.h"
 
 #define MPUIRQ_NAME "mpuirq"
 
@@ -48,7 +62,7 @@ struct mpuirq_dev_data {
 };
 
 static struct mpuirq_dev_data mpuirq_dev_data;
-static struct irq_data mpuirq_data;
+static struct mpuirq_data mpuirq_data;
 static char *interface = MPUIRQ_NAME;
 
 static void mpu_accel_data_work_fcn(struct work_struct *work);
@@ -76,10 +90,11 @@ static int mpuirq_release(struct inode *inode, struct file *file)
 static ssize_t mpuirq_read(struct file *file,
 			   char *buf, size_t count, loff_t *ppos)
 {
+	
 	int len, err;
 	struct mpuirq_dev_data *p_mpuirq_dev_data = file->private_data;
 
-	if (!mpuirq_dev_data.data_ready) {
+	if (!mpuirq_dev_data.data_ready && (mpuirq_dev_data.timeout > 0)) {
 		wait_event_interruptible_timeout(mpuirq_wait,
 						 mpuirq_dev_data.
 						 data_ready,
@@ -103,21 +118,13 @@ static ssize_t mpuirq_read(struct file *file,
 	return len;
 }
 
-#include <linux/delay.h>
-
 unsigned int mpuirq_poll(struct file *file, struct poll_table_struct *poll)
 {
 	int mask = 0;
 
 	poll_wait(file, &mpuirq_wait, poll);
-	if (mpuirq_dev_data.data_ready) {
+	if (mpuirq_dev_data.data_ready)
 		mask |= POLLIN | POLLRDNORM;
-		/* we presume FIFO data will be read by user via ioctl
-		 * on /dev/mpu so clear flag so the next poll doesn't
-		 * return prematurely
-		 */
-		mpuirq_dev_data.data_ready = 0;
-	}
 	return mask;
 }
 
@@ -199,26 +206,21 @@ static irqreturn_t mpuirq_handler(int irq, void *dev_id)
 
 	mpuirq_data.interruptcount++;
 
-	pr_debug("%s: interruptcount = %d\n",
-		__func__, mpuirq_data.interruptcount);
 	/* wake up (unblock) for reading data from userspace */
 	/* and ignore first interrupt generated in module init */
-	if (mpuirq_data.interruptcount > 1) {
-		mpuirq_dev_data.data_ready = 1;
+	mpuirq_dev_data.data_ready = 1;
 
-		do_gettimeofday(&irqtime);
-		mpuirq_data.irqtime = (((long long) irqtime.tv_sec) << 32);
-		mpuirq_data.irqtime += irqtime.tv_usec;
+	do_gettimeofday(&irqtime);
+	mpuirq_data.irqtime = (((long long) irqtime.tv_sec) << 32);
+	mpuirq_data.irqtime += irqtime.tv_usec;
 
-		if ((mpuirq_dev_data.accel_divider >= 0) &&
-		    (0 ==
-		     (mycount % (mpuirq_dev_data.accel_divider + 1)))) {
-			schedule_work((struct work_struct
-				       *) (&mpuirq_dev_data));
-		}
-
-		wake_up_interruptible(&mpuirq_wait);
+	if ((mpuirq_dev_data.accel_divider >= 0) &&
+		(0 == (mycount % (mpuirq_dev_data.accel_divider + 1)))) {
+		schedule_work((struct work_struct
+				*) (&mpuirq_dev_data));
 	}
+
+	wake_up_interruptible(&mpuirq_wait);
 
 	return IRQ_HANDLED;
 
