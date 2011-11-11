@@ -55,7 +55,11 @@ void p3_bt_uart_wake_peer(struct uart_port *);
 #  else
 #    define SAMSUNG_KIES_PRODUCT_ID	0x6860	/* mtp(0) + acm(1,2) */
 #  endif
-#    define SAMSUNG_DEBUG_PRODUCT_ID	0x685e	/* ums(0) + acm(1,2) + adb(3) (with MS Composite) */
+#if defined(CONFIG_MACH_SAMSUNG_P4TMO)
+#    define SAMSUNG_DEBUG_PRODUCT_ID	0x6860	/* mtp(0) + acm(1,2) + adb(3) (with MS Composite) */
+#else
+#    define SAMSUNG_DEBUG_PRODUCT_ID  0x685e  /* ums(0) + acm(1,2) + adb(3) (with MS Composite) */
+#endif
 #    define SAMSUNG_UMS_PRODUCT_ID	0x685B  /* UMS Only */
 #    define SAMSUNG_MTP_PRODUCT_ID	0x685C  /* MTP Only */
 #    ifdef CONFIG_USB_ANDROID_SAMSUNG_RNDIS_WITH_MS_COMPOSITE
@@ -63,7 +67,11 @@ void p3_bt_uart_wake_peer(struct uart_port *);
 #    else
 #      define SAMSUNG_RNDIS_PRODUCT_ID	0x6863  /* RNDIS only */
 #    endif
-#    define ANDROID_DEBUG_CONFIG_STRING	 "UMS + ACM + ADB (Debugging mode)"
+#if defined(CONFIG_MACH_SAMSUNG_P4TMO)
+#    define ANDROID_DEBUG_CONFIG_STRING	 "MTP + ACM + ADB (Debugging mode)"
+#else
+#    define ANDROID_DEBUG_CONFIG_STRING   "UMS + ACM + ADB (Debugging mode)"
+#endif
 #  ifdef CONFIG_USB_ANDROID_SAMSUNG_KIES_UMS
 #    define ANDROID_KIES_CONFIG_STRING	 "UMS + ACM (SAMSUNG KIES mode)"
 #  else
