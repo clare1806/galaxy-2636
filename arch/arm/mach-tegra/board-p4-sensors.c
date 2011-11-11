@@ -35,49 +35,16 @@
 #include <linux/i2c.h>
 #include <mach/gpio.h>
 #include <mach/gpio-sec.h>
+#include <linux/i2c/ak8975.h>
 #include <linux/bh1721fvc.h>
 #include "gpio-names.h"
 #include <linux/mpu.h>
-
-static void p3_ak8975_init(void)
-{
-	tegra_gpio_enable(GPIO_AK8975_INT);
-	gpio_request(GPIO_AK8975_INT, "ak8975c_int");
-	gpio_direction_input(GPIO_AK8975_INT);
-}
-
-static void p3_mpu3050_init(void)
-{
-	tegra_gpio_enable(GPIO_MPU_INT);
-	gpio_request(GPIO_MPU_INT, "mpu3050_int");
-	gpio_direction_input(GPIO_MPU_INT);
-}
 
 /* we use a skeleton to provide some information needed by MPL
  * but we don't use the suspend/resume/read functions so we
  * don't initialize them so that mldl_cfg.c doesn't try to
  * control it directly.  we have a separate mag driver instead.
  */
-static struct ext_slave_descr simple_ak8975_descr = {
-	/*.init             = */ NULL,
-	/*.exit             = */ NULL,
-	/*.suspend          = */ NULL,
-	/*.resume           = */ NULL,
-	/*.read             = */ NULL,
-	/*.config           = */ NULL,
-	/*.name             = */ "ak8975",
-	/*.type             = */ EXT_SLAVE_TYPE_COMPASS,
-	/*.id               = */ COMPASS_ID_AKM,
-	/*.reg              = */ 0x03,
-	/*.len              = */ 6,
-	/*.endian           = */ EXT_SLAVE_LITTLE_ENDIAN,
-	/*.range            = */ {9830, 4000}
-};
-
-static struct ext_slave_descr *ak8975_get_slave_descr(void)
-{
-	return &simple_ak8975_descr;
-}
 
 static struct mpu3050_platform_data p3_mpu3050_pdata = {
 	.int_config  = 0x10,
@@ -93,9 +60,9 @@ static struct mpu3050_platform_data p3_mpu3050_pdata = {
 			  1,  0,  0,
 			  0,  0,  1 },
 #endif
-	.level_shifter = 0,
+	.level_shifter = 1, // single power mode
 	.accel = {
-		.get_slave_descr = kxtf9_get_slave_descr,
+		.get_slave_descr = NULL,
 		.irq         = 0,
 		.adapt_num   = 0,
 		.bus         = EXT_SLAVE_BUS_SECONDARY,
@@ -114,10 +81,10 @@ static struct mpu3050_platform_data p3_mpu3050_pdata = {
 #endif
 	},
 	.compass = {
-		.get_slave_descr = ak8975_get_slave_descr,
+		.get_slave_descr = NULL,
 		.irq	     = 0,
 #if !defined(CONFIG_MACH_SAMSUNG_P3_P7100)
-		.adapt_num   = 12,            /*bus number 3*/
+		.adapt_num   = 12,            /*bus number 12*/
 #else
 		.adapt_num   = 3,            /*bus number 3*/
 #endif
@@ -137,13 +104,15 @@ static struct mpu3050_platform_data p3_mpu3050_pdata = {
 				  0,  0,  1 },
 #endif
 	},
-	.pressure = {
-		.get_slave_descr = NULL,
-		.irq	     = 0,
-		.bus	     = EXT_SLAVE_BUS_INVALID,
-	},
 };
 
+
+static void p3_mpu3050_init(void)
+{
+        tegra_gpio_enable(GPIO_MPU_INT);
+        gpio_request(GPIO_MPU_INT, "mpu3050_int");
+        gpio_direction_input(GPIO_MPU_INT);
+}
 static const struct i2c_board_info p3_i2c_mpu_sensor_board_info[] = {
 	{
 		I2C_BOARD_INFO("mpu3050", 0x68),
@@ -192,13 +161,6 @@ static struct i2c_board_info p3_i2c_light_sensor_board_info[] = {
 	},
 };
 
-static struct i2c_board_info p3_i2c_compass_sensor_board_info[] = {
-	{
-		I2C_BOARD_INFO("ak8975c", 0x0C),
-		.irq = TEGRA_GPIO_TO_IRQ(GPIO_AK8975_INT),
-	},
-};
-
 static int p3_light_sensor_init(void)
 {
 	int err;
@@ -219,6 +181,24 @@ static int p3_light_sensor_init(void)
 
 	return 0;
 }
+
+static void p3_ak8975_init(void)
+{
+        tegra_gpio_enable(GPIO_AK8975_INT);
+        gpio_request(GPIO_AK8975_INT, "ak8975_int");
+        gpio_direction_input(GPIO_AK8975_INT);
+}
+
+static struct akm8975_platform_data akm8975_pdata = {
+                .gpio_data_ready_int = GPIO_AK8975_INT,
+};
+static struct i2c_board_info p3_i2c_compass_sensor_board_info[] = {
+        {
+                I2C_BOARD_INFO("ak8975", 0x0C),
+                .irq = TEGRA_GPIO_TO_IRQ(GPIO_AK8975_INT),
+                .platform_data = &akm8975_pdata,
+        },
+};
 
 int __init p3_sensors_init(void)
 {
