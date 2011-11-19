@@ -538,6 +538,13 @@ source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
 source "drivers/misc/iwmc3200top/Kconfig"
+
+config HC_32
+        bool "Add support for Honeycomb 3.2"
+        default n
+        help
+          Say Y here to enable support for Honeycomb 3.2.
+
 source "drivers/misc/mpu3050/Kconfig"
 
 endif # MISC_DEVICES
