@@ -25,7 +25,7 @@
 static const char mconf_readme[] = N_(
 "Overview\n"
 "--------\n"
-"This interface let you select features and parameters for the build\n"
+"This interface let you select features and parameters for the build.\n"
 "Features can either be built-in, modularized, or ignored. Parameters\n"
 "must be entered in as decimal or hexadecimal numbers or text.\n"
 "\n"

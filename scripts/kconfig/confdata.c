@@ -806,11 +806,11 @@ int conf_write_autoconf(void)
 			  "\n");
 	fprintf(out_h, "/*\n"
 		       " * Automatically generated C config: don't edit\n"
-		       " * Linux kernel version: %s\n"
+		       " * %s\n"
 		       " * %s"
 		       " */\n"
 		       "#define AUTOCONF_INCLUDED\n",
-		       sym_get_string_value(sym), ctime(&now));
+		       rootmenu.prompt->text, ctime(&now));
 
 	for_all_symbols(i, sym) {
 		sym_calc_value(sym);
