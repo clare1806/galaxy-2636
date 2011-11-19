@@ -106,6 +106,11 @@ endif
 PHONY := _all
 _all:
 
+export MPU_VERSION := $(shell if [ -f .config ] && [ "`grep HC_32 .config | cut -f2 -d=`" = "y" ]; \
+                                   then echo mpu3050-hc32; \
+                                   else echo mpu3050; \
+                                   fi)
+
 # Cancel implicit rules on top Makefile
 $(CURDIR)/Makefile Makefile: ;
 

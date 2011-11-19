@@ -545,6 +545,10 @@ config HC_32
         help
           Say Y here to enable support for Honeycomb 3.2.
 
-source "drivers/misc/mpu3050/Kconfig"
+config MPU_VERSION
+        string
+	option env="MPU_VERSION"
+
+source "drivers/misc/$MPU_VERSION/Kconfig"
 
 endif # MISC_DEVICES
