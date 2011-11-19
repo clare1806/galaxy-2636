@@ -1263,8 +1263,8 @@ ConfigMainWindow::ConfigMainWindow(void)
 	char title[256];
 
 	QDesktopWidget *d = configApp->desktop();
-	snprintf(title, sizeof(title), _("Linux Kernel v%s Configuration"),
-		getenv("KERNELVERSION"));
+	snprintf(title, sizeof(title), "%s%s"),
+		rootmenu.prompt->text,
 	setCaption(title);
 
 	width = configSettings->readNumEntry("/window width", d->width() - 64);
